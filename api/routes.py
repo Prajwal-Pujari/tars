@@ -57,6 +57,11 @@ async def get_plan(token: str = Depends(verify_token)):
         "plan": get_current_plan()
     }
 
+@router.get("/graph")
+async def get_graph():
+    from indexer.graph import get_graph_data
+    return get_graph_data()
+
 @router.get("/health")
 async def health_check():
     # A complete health check would verify connections

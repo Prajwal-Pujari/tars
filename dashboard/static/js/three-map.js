@@ -1,24 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Placeholder data - in a real app, this would fetch from a Neo4j proxy endpoint on FastAPI
-    const gData = {
-      nodes: [
-          { id: "main.py", group: 1, val: 5 },
-          { id: "orchestrator.py", group: 2, val: 3 },
-          { id: "memory.py", group: 3, val: 2 }
-      ],
-      links: [
-          { source: "main.py", target: "orchestrator.py" },
-          { source: "orchestrator.py", target: "memory.py" }
-      ]
-    };
+    // Determine the API base URL. If dashboard is running on port 18888, API is usually on 8000.
+    const apiBaseUrl = `http://${window.location.hostname}:8000`;
 
-    const Graph = ForceGraph3D()
-      (document.getElementById('3d-graph'))
-        .graphData(gData)
-        .nodeLabel('id')
-        .nodeAutoColorBy('group')
-        .onNodeClick(node => {
-            // Trigger Documenter Agent to explain node
-            console.log("Clicked:", node.id);
+    fetch(`${apiBaseUrl}/api/graph`)
+        .then(res => res.json())
+        .then(gData => {
+            const Graph = ForceGraph3D()
+              (document.getElementById('3d-graph'))
+                .graphData(gData)
+                .nodeLabel('id')
+                .nodeAutoColorBy('group')
+                .onNodeClick(node => {
+                    // Trigger Documenter Agent to explain node
+                    console.log("Clicked:", node.id);
+                });
+        })
+        .catch(err => {
+            console.error("Error fetching Neo4j graph data:", err);
+            document.getElementById('info').innerText = "Error loading map data from API.";
         });
 });

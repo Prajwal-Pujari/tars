@@ -43,3 +43,48 @@ def create_call_relationship(caller, callee, file_path):
             logger.debug(f"Created Neo4j relationship: {caller} -> {callee}")
     except Exception as e:
         logger.error(f"Error creating Neo4j relationship: {e}")
+
+def get_graph_data():
+    """Retrieve all nodes and links from Neo4j in a format ready for 3d-force-graph."""
+    driver = get_driver()
+    if not driver:
+        return {"nodes": [], "links": []}
+        
+    query = """
+    MATCH (n)
+    OPTIONAL MATCH (n)-[r]->(m)
+    RETURN n, r, m
+    """
+    
+    nodes = {}
+    links = []
+    
+    try:
+        with driver.session() as session:
+            result = session.run(query)
+            for record in result:
+                # Add source node
+                n = record["n"]
+                if n and n.get("name") not in nodes:
+                    nodes[n.get("name")] = {"id": n.get("name"), "group": 1, "val": 2}
+                
+                # Add target node
+                m = record["m"]
+                if m and m.get("name") not in nodes:
+                    nodes[m.get("name")] = {"id": m.get("name"), "group": 2, "val": 2}
+                    
+                # Add relationship link
+                r = record["r"]
+                if n and m and r:
+                    links.append({
+                        "source": n.get("name"),
+                        "target": m.get("name")
+                    })
+                    
+        return {
+            "nodes": list(nodes.values()),
+            "links": links
+        }
+    except Exception as e:
+        logger.error(f"Error retrieving Neo4j graph data: {e}")
+        return {"nodes": [], "links": []}
