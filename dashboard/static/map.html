@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TARS 3D Codebase Map</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        #info { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; pointer-events: none;}
+        .nav { position: absolute; top: 10px; right: 10px; }
+        .nav a { color: #38bdf8; text-decoration: none; background: #1e293b; padding: 5px 10px; border-radius: 4px; font-family: sans-serif;}
+    </style>
+    <!-- Three.js and force graph dependencies -->
+    <script src="https://unpkg.com/three"></script>
+    <script src="https://unpkg.com/3d-force-graph"></script>
+</head>
+<body>
+    <div id="info">TARS Codebase Map (Neo4j)</div>
+    <div class="nav"><a href="/">Back to Dashboard</a></div>
+    <div id="3d-graph"></div>
+    <script src="/static/js/three-map.js"></script>
+</body>
+</html>

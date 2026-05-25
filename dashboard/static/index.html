@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARS Dashboard</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; }
+        .log-box { background: #1e293b; padding: 20px; height: 500px; overflow-y: auto; border-radius: 8px; margin-top: 20px; font-family: monospace;}
+        h1 { color: #38bdf8; }
+        .nav { margin-bottom: 20px; }
+        .nav a { color: #38bdf8; text-decoration: none; margin-right: 15px; font-weight: bold;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">Dashboard</a>
+            <a href="/map">3D Code Map</a>
+        </div>
+        <h1>TARS Activity Dashboard</h1>
+        <div class="status">WebSocket: <span id="ws-status" style="color: red;">Disconnected</span></div>
+        <div class="log-box" id="log-box"></div>
+    </div>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
