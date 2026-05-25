@@ -24,5 +24,7 @@ async def code_map():
     return FileResponse(os.path.join(static_dir, "map.html"))
 
 if __name__ == "__main__":
-    port = int(os.getenv("DASHBOARD_PORT", 8888))
+    port = int(os.getenv("DASHBOARD_PORT", 18888))
+    if port == 8888:
+        port = 18888
     uvicorn.run(app, host="0.0.0.0", port=port)

@@ -48,9 +48,13 @@ def main():
     try:
         api_process, dashboard_process = start_services()
         
+        dash_port = int(os.environ.get("DASHBOARD_PORT", 18888))
+        if dash_port == 8888:
+            dash_port = 18888
+            
         print("\n[System] Services are running in the background.")
         print("[System] API accessible remotely at: http://<UBUNTU_IP>:8000")
-        print("[System] Dashboard accessible remotely at: http://<UBUNTU_IP>:8888")
+        print(f"[System] Dashboard accessible remotely at: http://<UBUNTU_IP>:{dash_port}")
         print("\n========================================================\n")
         
         # Start the CLI interface right here in the same terminal
@@ -65,9 +69,9 @@ def main():
             return
             
         try:
-            requests.get("http://127.0.0.1:8888/", timeout=3)
+            requests.get(f"http://127.0.0.1:{dash_port}/", timeout=3)
         except Exception:
-            print("[bold yellow]WARNING: Dashboard Server on port 8888 failed to boot! Check logs/dashboard.log.[/bold yellow]")
+            print(f"[bold yellow]WARNING: Dashboard Server on port {dash_port} failed to boot! Check logs/dashboard.log.[/bold yellow]")
             
         cli.main()
         
