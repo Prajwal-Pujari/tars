@@ -90,8 +90,11 @@ class Orchestrator:
         )
         
         logger.info("Kicking off Architect to draft plan...")
+        import asyncio
         try:
-            result = await crew.kickoff_async()
+            # We use asyncio.to_thread to run the stable synchronous kickoff 
+            # in a background thread to prevent CrewAI executor locks
+            result = await asyncio.to_thread(crew.kickoff)
             plan_content = str(result)
         except Exception as e:
             logger.error(f"Error during planning: {e}")
@@ -125,8 +128,9 @@ class Orchestrator:
             verbose=True
         )
         
+        import asyncio
         try:
-            result = await crew.kickoff_async()
+            result = await asyncio.to_thread(crew.kickoff)
             updated_plan = str(result)
         except Exception as e:
             updated_plan = f"Error updating plan: {e}"
@@ -171,8 +175,9 @@ class Orchestrator:
         )
         
         logger.info("Kicking off execution crew...")
+        import asyncio
         try:
-            result = await crew.kickoff_async()
+            result = await asyncio.to_thread(crew.kickoff)
             final_output = str(result)
         except Exception as e:
             final_output = f"Error during execution: {e}"
