@@ -60,9 +60,14 @@ def main():
             import requests
             requests.get("http://127.0.0.1:8000/health", timeout=3)
         except Exception:
-            print("[bold red]CRITICAL ERROR: API Server failed to boot! Check logs/api.log for the python traceback.[/bold red]")
+            print("[bold red]CRITICAL ERROR: API Server on port 8000 failed to boot! Check logs/api.log for the python traceback.[/bold red]")
             cleanup()
             return
+            
+        try:
+            requests.get("http://127.0.0.1:8888/", timeout=3)
+        except Exception:
+            print("[bold yellow]WARNING: Dashboard Server on port 8888 failed to boot! Check logs/dashboard.log.[/bold yellow]")
             
         cli.main()
         
