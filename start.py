@@ -7,6 +7,14 @@ def start_services():
     import os
     os.makedirs("logs", exist_ok=True)
     
+    print("[System] Cleaning up old background processes...")
+    try:
+        subprocess.run(["pkill", "-f", "python main.py"], check=False, capture_output=True)
+        subprocess.run(["pkill", "-f", "python dashboard.py"], check=False, capture_output=True)
+        time.sleep(1) # Give OS a second to free the ports
+    except Exception:
+        pass
+        
     api_log = open("logs/api.log", "w")
     dash_log = open("logs/dashboard.log", "w")
     
@@ -47,6 +55,15 @@ def main():
         
         # Start the CLI interface right here in the same terminal
         import cli
+        # Add a quick health check to make sure the NEW server actually booted!
+        try:
+            import requests
+            requests.get("http://127.0.0.1:8000/health", timeout=3)
+        except Exception:
+            print("[bold red]CRITICAL ERROR: API Server failed to boot! Check logs/api.log for the python traceback.[/bold red]")
+            cleanup()
+            return
+            
         cli.main()
         
     except Exception as e:
