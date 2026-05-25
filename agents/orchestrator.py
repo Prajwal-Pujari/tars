@@ -28,10 +28,15 @@ class Orchestrator:
         
     def handle_request(self, user_input):
         """Main entry point for handling a user request."""
+        if user_input.lower().strip() in ["reset", "clear", "restart"]:
+            set_approval_status("none")
+            set_current_plan(None)
+            return "Session has been reset. How can I help you today?"
+            
         status = get_approval_status()
         
         if status == "waiting_for_approval":
-            if user_input.lower().strip() in ["approved", "proceed", "go ahead", "yes"]:
+            if user_input.lower().strip() in ["approved", "proceed", "go ahead", "yes", "execute"]:
                 set_approval_status("approved")
                 return self.execute_plan()
             else:
@@ -43,20 +48,59 @@ class Orchestrator:
         
     def create_plan(self, user_input):
         log_agent_action("Orchestrator", "create_plan", {"input": user_input})
-        # Mock logic to build a plan using the Architect
-        # In reality, we'd invoke the Architect Agent to draft the PLAN.md
-        plan_content = f"# Draft Plan for: {user_input}\n\n1. Setup.\n2. Execute."
+        from crewai import Task
+        
+        plan_task = Task(
+            description=f"Analyze the following user request and create a technical implementation plan.\nUser request: {user_input}",
+            expected_output="A detailed technical implementation plan in markdown format, outlining what to change and how.",
+            agent=self.architect
+        )
+        
+        crew = Crew(
+            agents=[self.architect],
+            tasks=[plan_task],
+            process=Process.sequential,
+            verbose=True
+        )
+        
+        logger.info("Kicking off Architect to draft plan...")
+        try:
+            result = crew.kickoff()
+            plan_content = str(result)
+        except Exception as e:
+            logger.error(f"Error during planning: {e}")
+            plan_content = f"Error generating plan: {e}"
+            
         set_current_plan(plan_content)
         set_approval_status("waiting_for_approval")
-        return "I have drafted a plan. Please review it. Say 'approved' to proceed or tell me what to change."
+        return f"I have drafted a plan:\n\n{plan_content}\n\nPlease review it. Say 'approved' to proceed or tell me what to change."
         
     def modify_plan(self, feedback):
         log_agent_action("Orchestrator", "modify_plan", {"feedback": feedback})
         current_plan = get_current_plan()
-        # Mock logic to modify plan
-        updated_plan = f"{current_plan}\n\n## Feedback Integrated:\n{feedback}"
+        
+        from crewai import Task
+        modify_task = Task(
+            description=f"Update the following existing plan based on the user's feedback.\nExisting Plan:\n{current_plan}\n\nUser Feedback:\n{feedback}",
+            expected_output="The completely updated technical implementation plan in markdown format.",
+            agent=self.architect
+        )
+        
+        crew = Crew(
+            agents=[self.architect],
+            tasks=[modify_task],
+            process=Process.sequential,
+            verbose=True
+        )
+        
+        try:
+            result = crew.kickoff()
+            updated_plan = str(result)
+        except Exception as e:
+            updated_plan = f"Error updating plan: {e}"
+            
         set_current_plan(updated_plan)
-        return "I've updated the plan based on your feedback. Please review and approve."
+        return f"I've updated the plan based on your feedback:\n\n{updated_plan}\n\nPlease review and approve."
         
     def execute_plan(self):
         log_agent_action("Orchestrator", "execute_plan", {"plan": get_current_plan()})
@@ -91,11 +135,15 @@ class Orchestrator:
         )
         
         logger.info("Kicking off execution crew...")
-        # result = crew.kickoff()  # Commented out so it doesn't trigger unexpectedly during dev
-        
+        try:
+            result = crew.kickoff()
+            final_output = str(result)
+        except Exception as e:
+            final_output = f"Error during execution: {e}"
+            
         set_approval_status("complete")
         set_current_plan(None)
-        return "Execution completed. SUMMARY.md has been generated."
+        return f"Execution completed.\n\n{final_output}"
 
 _orchestrator_instance = None
 
