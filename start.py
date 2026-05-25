@@ -4,11 +4,17 @@ import sys
 import signal
 
 def start_services():
+    import os
+    os.makedirs("logs", exist_ok=True)
+    
+    api_log = open("logs/api.log", "w")
+    dash_log = open("logs/dashboard.log", "w")
+    
     print("[System] Starting TARS API Server...")
-    api_process = subprocess.Popen([sys.executable, "main.py"])
+    api_process = subprocess.Popen([sys.executable, "main.py"], stdout=api_log, stderr=subprocess.STDOUT)
     
     print("[System] Starting TARS Dashboard Server...")
-    dashboard_process = subprocess.Popen([sys.executable, "dashboard.py"])
+    dashboard_process = subprocess.Popen([sys.executable, "dashboard.py"], stdout=dash_log, stderr=subprocess.STDOUT)
     
     print("[System] Waiting for servers to initialize (this may take a few seconds)...")
     time.sleep(5) # Give the FastApi and Uvicorn servers time to bind to ports

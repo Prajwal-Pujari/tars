@@ -22,7 +22,7 @@ def send_chat(message):
             f"{API_URL}/chat", 
             json={"message": message}, 
             headers=HEADERS,
-            timeout=10
+            timeout=300
         )
         response.raise_for_status()
         return response.json().get("response", "No response content.")
