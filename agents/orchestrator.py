@@ -66,8 +66,11 @@ class Orchestrator:
                     )
                     if resp.status_code == 200:
                         return resp.json().get("response", "I have no words.")
+                    else:
+                        return f"Ollama API Error ({resp.status_code}): {resp.text}"
             except Exception as e:
                 logger.error(f"Error during fast conversational bypass: {e}")
+                return f"Error contacting my Ollama brain: {e}"
                 
         # Phase 1: Understand & Plan
         return await self.create_plan(user_input)
