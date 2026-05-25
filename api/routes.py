@@ -18,23 +18,23 @@ class PlanFeedback(BaseModel):
 @router.post("/chat")
 async def chat(request: ChatRequest, token: str = Depends(verify_token)):
     # Synchronous for simplicity, in reality dispatch to async queue/task
-    response = get_orchestrator().handle_request(request.message)
+    response = await get_orchestrator().handle_request(request.message)
     await manager.broadcast(f"TARS action: processed user message.")
     return {"response": response}
 
 @router.post("/task")
 async def submit_task(request: ChatRequest, token: str = Depends(verify_token)):
-    response = get_orchestrator().create_plan(request.message)
+    response = await get_orchestrator().create_plan(request.message)
     return {"response": response}
 
 @router.post("/plan/approve")
 async def approve_plan(token: str = Depends(verify_token)):
-    response = get_orchestrator().handle_request("approved")
+    response = await get_orchestrator().handle_request("approved")
     return {"response": response}
 
 @router.post("/plan/modify")
 async def modify_plan(request: PlanFeedback, token: str = Depends(verify_token)):
-    response = get_orchestrator().handle_request(request.feedback)
+    response = await get_orchestrator().handle_request(request.feedback)
     return {"response": response}
 
 @router.post("/file")

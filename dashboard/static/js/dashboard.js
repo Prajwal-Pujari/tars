@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const logBox = document.getElementById("log-box");
     
     // Connect to FastAPI WebSocket
-    const ws = new WebSocket("ws://localhost:8000/ws");
+    const ws = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
     
     ws.onopen = () => {
         wsStatus.innerText = "Connected";
