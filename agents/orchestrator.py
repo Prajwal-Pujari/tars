@@ -43,6 +43,32 @@ class Orchestrator:
                 # User provided feedback on the plan
                 return await self.modify_plan(user_input)
                 
+        # Fast conversational classifier bypass
+        # If the input is short or clearly a greeting, bypass the heavy multi-agent system
+        # and respond instantly using a direct Ollama call.
+        lower_input = user_input.lower().strip()
+        fast_triggers = ["hi", "hello", "hey", "sup", "what's up", "who are you", "how are you", "are you there"]
+        if lower_input in fast_triggers or len(lower_input) < 20:
+            import httpx
+            import os
+            try:
+                base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+                model_name = os.getenv("FAST_MODEL", os.getenv("MAIN_MODEL", "gemma4:26b"))
+                async with httpx.AsyncClient() as client:
+                    resp = await client.post(
+                        f"{base_url}/api/generate",
+                        json={
+                            "model": model_name,
+                            "prompt": f"You are TARS, a highly intelligent, slightly sarcastic, and extremely loyal AI assistant from Interstellar. The user says: '{user_input}'. Give a brief, clever, and conversational reply. Do not offer a plan.",
+                            "stream": False
+                        },
+                        timeout=30.0
+                    )
+                    if resp.status_code == 200:
+                        return resp.json().get("response", "I have no words.")
+            except Exception as e:
+                logger.error(f"Error during fast conversational bypass: {e}")
+                
         # Phase 1: Understand & Plan
         return await self.create_plan(user_input)
         
