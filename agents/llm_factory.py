@@ -1,5 +1,5 @@
 import os
-from langchain_community.llms import Ollama
+from crewai import LLM
 
 def get_llm(model_type="main"):
     """
@@ -15,8 +15,8 @@ def get_llm(model_type="main"):
     else:
         model_name = os.getenv("MAIN_MODEL", "gemma4:26b")
         
-    return Ollama(
-        model=model_name,
+    return LLM(
+        model=f"ollama/{model_name}",
         base_url=base_url,
         temperature=0.1
     )
