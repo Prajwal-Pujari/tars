@@ -72,30 +72,10 @@ services:
       - INSTANCE_NAME=tars-search
     restart: unless-stopped
 
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:cuda
-    container_name: tars_open_webui
-    environment:
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
-    ports:
-      - "3000:8080"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - open_webui_data:/app/backend/data
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    restart: unless-stopped
 
 volumes:
   postgres_data:
   qdrant_data:
   neo4j_data:
   searxng_data:
-  open_webui_data:
   redis_data:
