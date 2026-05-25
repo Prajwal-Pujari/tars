@@ -19,12 +19,7 @@ class Orchestrator:
     """
     
     def __init__(self):
-        self.architect = get_architect_agent()
-        self.coder = get_coder_agent()
-        self.reviewer = get_reviewer_agent()
-        self.test_writer = get_test_writer_agent()
-        self.documenter = get_documenter_agent()
-        self.debugger = get_debugger_agent()
+        pass
         
     async def handle_request(self, user_input):
         """Main entry point for handling a user request."""
@@ -79,14 +74,16 @@ class Orchestrator:
         log_agent_action("Orchestrator", "create_plan", {"input": user_input})
         from crewai import Task
         
+        architect = get_architect_agent()
+        
         plan_task = Task(
             description=f"Analyze the following user request. If it is a casual conversation, greeting, or general question, answer it warmly and conversationally in the persona of TARS. If it is a request to build or modify code, create a technical implementation plan outlining what to change and how.\nUser request: {user_input}",
             expected_output="Your conversational response OR a technical implementation plan in markdown format.",
-            agent=self.architect
+            agent=architect
         )
         
         crew = Crew(
-            agents=[self.architect],
+            agents=[architect],
             tasks=[plan_task],
             process=Process.sequential,
             verbose=True
@@ -113,14 +110,16 @@ class Orchestrator:
         current_plan = get_current_plan()
         
         from crewai import Task
+        architect = get_architect_agent()
+        
         modify_task = Task(
             description=f"Update the following existing plan based on the user's feedback.\nExisting Plan:\n{current_plan}\n\nUser Feedback:\n{feedback}",
             expected_output="The completely updated technical implementation plan in markdown format.",
-            agent=self.architect
+            agent=architect
         )
         
         crew = Crew(
-            agents=[self.architect],
+            agents=[architect],
             tasks=[modify_task],
             process=Process.sequential,
             verbose=True
@@ -142,26 +141,30 @@ class Orchestrator:
         # Build the execution crew
         from crewai import Task
         
+        coder = get_coder_agent()
+        reviewer = get_reviewer_agent()
+        documenter = get_documenter_agent()
+        
         code_task = Task(
             description="Execute the approved plan.",
             expected_output="Code written and modified as per the plan.",
-            agent=self.coder
+            agent=coder
         )
         
         review_task = Task(
             description="Review the code produced by the coder.",
             expected_output="Code review report and approval.",
-            agent=self.reviewer
+            agent=reviewer
         )
         
         doc_task = Task(
             description="Write SUMMARY.md detailing what was accomplished.",
             expected_output="SUMMARY.md content.",
-            agent=self.documenter
+            agent=documenter
         )
         
         crew = Crew(
-            agents=[self.coder, self.reviewer, self.documenter],
+            agents=[coder, reviewer, documenter],
             tasks=[code_task, review_task, doc_task],
             process=Process.sequential,
             verbose=True
