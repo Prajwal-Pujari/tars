@@ -29,7 +29,7 @@ def init_qdrant():
     max_retries = 5
     retry_delay = 5
     
-    host = os.getenv("QDRANT_HOST", "localhost")
+    host = os.getenv("QDRANT_HOST", "127.0.0.1")
     port = int(os.getenv("QDRANT_PORT", "6333"))
         
     for attempt in range(max_retries):
@@ -41,7 +41,7 @@ def init_qdrant():
 
             # Initialize Ollama embeddings
             model_name = os.getenv("EMBED_MODEL", "bge-m3")
-            ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+            ollama_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
             _embeddings_model = OllamaEmbeddings(
                 model=model_name,
                 base_url=ollama_url
